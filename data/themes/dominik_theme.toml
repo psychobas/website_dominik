@@ -1,13 +1,13 @@
 # Theme metadata
-name = "desiree"
+name = "dominik_theme"
 
 # Is theme light or dark?
 light = true
 
 # Primary
-primary ="#575757"
-primary_light = "#ee5863"
-primary_dark = "#ee5863"
+primary ="#f2f2f2"
+primary_light = "#f2f2f2"
+primary_dark = "#f2f2f2"
 
 # Links
 link = "#999999"
@@ -20,6 +20,6 @@ menu_text_active = "#111111"
 menu_title = "#111111"
 
 # Backgrounds
-background = "#fcfcfc"
-home_section_odd = "#fcfcfc"
-home_section_even = "#fcfcfcF"
+background = "#f2f2f2"
+home_section_odd = "#f2f2f2"
+home_section_even = "#f2f2f2"
