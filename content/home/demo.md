@@ -52,7 +52,7 @@ subtitle = ""
 
 <div style="background-color:#f2f2f2; box-shadow: none"> 
 
-<!-- particles.js container --> <div id="particles-js" style="background-color:#f2f2f2; height:70vh"></div> 
+<!-- particles.js container --> <div id="particles-js" style="background-color:#f2f2f2; height:80vh"></div> 
 
 </div>
 
