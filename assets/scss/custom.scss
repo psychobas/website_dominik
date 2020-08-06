@@ -248,7 +248,7 @@ div.note {
 
 /* particles.js: */
 
-/* ---- reset ---- */ body{ margin:0} canvas{ display: block; vertical-align: bottom; } /* ---- particles.js container ---- */ #particles-js{  background-color: #f2f2f2; background-image: url(""); background-repeat: no-repeat; background-size: cover; background-position: 50% 50%; } 
+// /* ---- reset ---- */ body{ margin:0} canvas{ display: block; vertical-align: bottom; } /* ---- particles.js container ---- */ #particles-js{  background-color: #f2f2f2; background-image: url(""); background-repeat: no-repeat; background-size: cover; background-position: 50% 50%; } //
 
 
 
@@ -260,3 +260,27 @@ div.note {
     margin-left: auto;
 }
 
+
+
+
+
+
+
+
+
+#about{
+    position: relative;
+}
+
+.row{
+    position: relative;
+    z-index: 100;
+}
+
+#particles-js{
+    color: #999999;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -100;
+}
