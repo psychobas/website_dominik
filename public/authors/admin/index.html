@@ -516,7 +516,7 @@
 
       
       
-      <img class="avatar avatar-square" src="/authors/admin/avatar_hua8d50580ec82bd3080870cd64a655aa7_70883_270x270_fill_lanczos_center_2.png" alt="Avatar">
+      <img class="avatar avatar-square" id="avatar_image" src="/authors/admin/avatar_hu64e93b5dd4538efe29eccd6df12112bd_66481_270x270_fill_lanczos_center_2.png" alt="Avatar">
       
 
       <div class="portrait-title">
@@ -685,6 +685,25 @@ window.onload = particlesJS("particles-js", {"particles":{"number":{"value":80,"
 
 
 
+<script>
+  let avatarImage = document.getElementById("avatar_image");
+  
+
+
+avatarImage.addEventListener("mouseover", function( event ) {   
+  
+  event.target.src = "https://i.ibb.co/zrk50H7/Dominik-Meier.jpg";
+
+});
+
+avatarImage.addEventListener("mouseout", function( event ) {   
+  
+  event.target.src = "https://i.ibb.co/SsnNMwS/dominik.png";
+
+});
+
+  
+</script>
 
 
 

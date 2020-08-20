@@ -28,7 +28,7 @@
       <img class="avatar {{if eq $avatar_shape "square"}}avatar-square{{else}}avatar-circle{{end}}" src="https://s.gravatar.com/avatar/{{ md5 $person.email }}?s=270')" alt="Avatar">
       {{ else if $avatar }}
       {{ $avatar_image := $avatar.Fill "270x270 Center" }}
-      <img class="avatar {{if eq $avatar_shape "square"}}avatar-square{{else}}avatar-circle{{end}}" src="{{ $avatar_image.RelPermalink }}" alt="Avatar">
+      <img class="avatar {{if eq $avatar_shape "square"}}avatar-square{{else}}avatar-circle{{end}}" id="avatar_image" src="{{ $avatar_image.RelPermalink }}" alt="Avatar">
       {{ end }}
 
       <div class="portrait-title">
@@ -135,7 +135,26 @@ window.onload = particlesJS("particles-js", {"particles":{"number":{"value":80,"
 
 
 
+<!-- avatar image script --->
+<script>
+  let avatarImage = document.getElementById("avatar_image");
+  
+// This handler will be executed only once when the cursor
+// moves over the unordered list
+avatarImage.addEventListener("mouseover", function( event ) {   
+  // highlight the mouseenter target
+  event.target.src = "https://i.ibb.co/zrk50H7/Dominik-Meier.jpg";
 
+});
+
+avatarImage.addEventListener("mouseout", function( event ) {   
+  // highlight the mouseenter target
+  event.target.src = "https://i.ibb.co/SsnNMwS/dominik.png";
+
+});
+
+  
+</script>
 
 
 <!--  
