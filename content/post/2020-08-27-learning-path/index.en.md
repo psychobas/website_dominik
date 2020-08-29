@@ -18,12 +18,17 @@ image:
 projects: []
 ---
 
-This is a repo forked from [amitness](https://github.com/amitness/learning)
+This is a repo forked from [amitness](https://github.com/amitness/learning). I use it to gather great learning resources and to keep track of my learning path. At the moment, it is rather Python focused. I will add more R Resources over time, as I use R more often than Python at the moment. 
 
 
 <p align="center">
   <img src="https://i.imgur.com/A5J6Qdb.png" width="316" height="292"/>
 </p>
+<style>
+body {
+  font-size: 0.8rem
+}
+</style>
 
 <!---
 
