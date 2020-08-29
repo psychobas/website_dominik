@@ -5,6 +5,7 @@ date: '2020-08-27'
 slug: []
 categories: []
 tags: []
+draft: FALSE
 subtitle: ''
 summary: ''
 authors: []
