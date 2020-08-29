@@ -33,12 +33,32 @@
   </url>
   
   <url>
-    <loc>/blog/learning-path/</loc>
-    <lastmod>2020-08-27T20:30:39+02:00</lastmod>
+    <loc>/post/</loc>
+    <lastmod>2020-08-29T18:16:52+02:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/</loc>
+    <loc>/tags/r/</loc>
+    <lastmod>2020-08-29T18:16:52+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tags/spotifyr/</loc>
+    <lastmod>2020-08-29T18:16:52+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+    <lastmod>2020-08-29T18:16:52+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/blog/use-r-to-automatically-save-your-spotify-disover-weekly-playlist/</loc>
+    <lastmod>2020-08-29T18:16:52+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/blog/learning-path/</loc>
     <lastmod>2020-08-27T20:30:39+02:00</lastmod>
   </url>
   
@@ -90,11 +110,6 @@
   <url>
     <loc>/tags/source-themes/</loc>
     <lastmod>2019-04-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tags/</loc>
-    <lastmod>2019-04-17T00:00:00+00:00</lastmod>
   </url>
   
   <url>

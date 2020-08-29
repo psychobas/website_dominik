@@ -16,6 +16,10 @@ image:
   focal_point: ''
   preview_only: no
 projects: []
+output:
+  html_document:
+    toc: true
+    toc_float: true
 ---
 
 This is a repo forked from [amitness](https://github.com/amitness/learning). I use it to gather great learning resources and to keep track of my learning path. At the moment, it is rather Python focused. I will add more R Resources over time, as I use R more often than Python at the moment. 

@@ -1,0 +1,72 @@
+---
+title: Use R to Automatically Save your Spotify Disover Weekly Playlist
+author: Dominik Meier
+date: '2020-08-29'
+slug: []
+categories: []
+tags:
+  - R
+  - spotifyr
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-08-29T18:16:52+02:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+I stream most of my music through Spotify, and the discover weekly algorithm got pretty good at recommneding songs that I actually like. Unfortunately, there is no way to save the whole discover weekly playlist as a separate playlist that does not change every week. That's why I wrote this script to automate this task. To do this, I use the [spotifyr](https://github.com/charlie86/spotifyr) package created by [Charlie Thompson](https://www.rcharlie.com/#experience). The package provides access to the Spotify API. Make sure to check out Charlie's Blog, as he has done some really cool things with spotifyr. 
+
+To access the API, you need to setup a [Dev account](https://developer.spotify.com/my-applications/#!/applications) with Spotify. This will provide you with a Client ID and a Client Secret, which enable you to access the API. 
+
+As explained by the Spotifyr Readme, the easiest way to authenticate is to set the Client ID and Secret as System Environment variables, as I did below. The `get_spotify_access_token()` then pulls the acces token into R. The first time you do this you will need to log in to Spotify for authorization. The Spotifyr Readme describes how to do that. Use `Sys.setenv()` or save them directly to `.Renviron` (call `file.edit("~/.Renviron")` to edit this file).
+
+```{r}
+#load package
+library(spotifyr)
+
+####Set ID and Secret
+#Sys.setenv(SPOTIFY_CLIENT_ID = 'enter_your_client_id')
+#Sys.setenv(SPOTIFY_CLIENT_SECRET = 'enter_your_client_secret')
+
+#load ID and Secret
+access_token <- get_spotify_authorization_code()
+access_token <- get_spotify_access_token()
+```
+
+
+Now we can call the Spotify API to get the tracks from the current discover weekly playlist. We use the `get_playlist_track()` function for this. We have to provide the playlist id. In the Mac or Windows Spotify App, right click on the playlist cover and Select Share -> Copy Spotify URI. This will give you a string that starts with "spotify:playlist:". The strings after this are the playlist ID, provide this as an argument to the `get_playlist_tracks()` function. I use a environment variable here so that I can protect my playlist id. 
+```{r}
+discover_weekly <- get_playlist_tracks(playlist_id = Sys.getenv("PLAYLIST_ID"))
+
+names(discover_weekly)
+
+```
+
+Now that we have the tracks of the playlist, we have to create a new playlist to save these tracks to. I save them to a playlist in the format of "year_weeknumber_discover weekly". 
+
+
+```{r}
+playlist <- create_playlist(user_id = "dismami7", name = paste(strftime(Sys.time(), format = "%y"), strftime(Sys.time(), format = "%V"), "discover weekly", sep = "_"))
+```
+
+Once the playlist is created, we have to provide the track uris from our discover weekly playlist to it to fill it with these tracks.
+```{r}
+add_tracks_to_playlist(playlist$id, uris = discover_weekly[["track.uri"]])
+```
+
+Finally, check if it worked on Spotify or like this:
+```{r}
+all(get_playlist_tracks(playlist_id = playlist$id)[["track.uri"]] == get_playlist_tracks(playlist_id = Sys.getenv("PLAYLIST_ID"))[["track.uri"]])
+```
+
+Now we only have to remember to run this script once a week. We could also use packages like `taskscheduleR` or `googleCloudRunner` to fully automate the process. Have fun listening to your (old)
+ discover weekly playlists!

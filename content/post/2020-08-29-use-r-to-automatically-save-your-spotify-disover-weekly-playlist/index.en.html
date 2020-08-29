@@ -1,0 +1,71 @@
+---
+title: Use R to Automatically Save your Spotify Disover Weekly Playlist
+author: Dominik Meier
+date: '2020-08-29'
+slug: []
+categories: []
+tags:
+  - R
+  - spotifyr
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-08-29T18:16:52+02:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+
+<p>I stream most of my music through Spotify, and the discover weekly algorithm got pretty good at recommneding songs that I actually like. Unfortunately, there is no way to save the whole discover weekly playlist as a separate playlist that does not change every week. That’s why I wrote this script to automate this task. To do this, I use the <a href="https://github.com/charlie86/spotifyr">spotifyr</a> package created by <a href="https://www.rcharlie.com/#experience">Charlie Thompson</a>. The package provides access to the Spotify API. Make sure to check out Charlie’s Blog, as he has done some really cool things with spotifyr.</p>
+<p>To access the API, you need to setup a <a href="https://developer.spotify.com/my-applications/#!/applications">Dev account</a> with Spotify. This will provide you with a Client ID and a Client Secret, which enable you to access the API.</p>
+<p>As explained by the Spotifyr Readme, the easiest way to authenticate is to set the Client ID and Secret as System Environment variables, as I did below. The <code>get_spotify_access_token()</code> then pulls the acces token into R. The first time you do this you will need to log in to Spotify for authorization. The Spotifyr Readme describes how to do that. Use <code>Sys.setenv()</code> or save them directly to <code>.Renviron</code> (call <code>file.edit("~/.Renviron")</code> to edit this file).</p>
+<pre class="r"><code>#load package
+library(spotifyr)
+
+####Set ID and Secret
+#Sys.setenv(SPOTIFY_CLIENT_ID = &#39;enter_your_client_id&#39;)
+#Sys.setenv(SPOTIFY_CLIENT_SECRET = &#39;enter_your_client_secret&#39;)
+
+#load ID and Secret
+access_token &lt;- get_spotify_authorization_code()
+access_token &lt;- get_spotify_access_token()</code></pre>
+<p>Now we can call the Spotify API to get the tracks from the current discover weekly playlist. We use the <code>get_playlist_track()</code> function for this. We have to provide the playlist id. In the Mac or Windows Spotify App, right click on the playlist cover and Select Share -&gt; Copy Spotify URI. This will give you a string that starts with “<a href="spotify:playlist" class="uri">spotify:playlist</a>:”. The strings after this are the playlist ID, provide this as an argument to the <code>get_playlist_tracks()</code> function. I use a environment variable here so that I can protect my playlist id.</p>
+<pre class="r"><code>discover_weekly &lt;- get_playlist_tracks(playlist_id = Sys.getenv(&quot;PLAYLIST_ID&quot;))
+
+names(discover_weekly)</code></pre>
+<pre><code>##  [1] &quot;added_at&quot;                           &quot;is_local&quot;                          
+##  [3] &quot;primary_color&quot;                      &quot;added_by.href&quot;                     
+##  [5] &quot;added_by.id&quot;                        &quot;added_by.type&quot;                     
+##  [7] &quot;added_by.uri&quot;                       &quot;added_by.external_urls.spotify&quot;    
+##  [9] &quot;track.artists&quot;                      &quot;track.available_markets&quot;           
+## [11] &quot;track.disc_number&quot;                  &quot;track.duration_ms&quot;                 
+## [13] &quot;track.episode&quot;                      &quot;track.explicit&quot;                    
+## [15] &quot;track.href&quot;                         &quot;track.id&quot;                          
+## [17] &quot;track.is_local&quot;                     &quot;track.name&quot;                        
+## [19] &quot;track.popularity&quot;                   &quot;track.preview_url&quot;                 
+## [21] &quot;track.track&quot;                        &quot;track.track_number&quot;                
+## [23] &quot;track.type&quot;                         &quot;track.uri&quot;                         
+## [25] &quot;track.album.album_type&quot;             &quot;track.album.artists&quot;               
+## [27] &quot;track.album.available_markets&quot;      &quot;track.album.href&quot;                  
+## [29] &quot;track.album.id&quot;                     &quot;track.album.images&quot;                
+## [31] &quot;track.album.name&quot;                   &quot;track.album.release_date&quot;          
+## [33] &quot;track.album.release_date_precision&quot; &quot;track.album.total_tracks&quot;          
+## [35] &quot;track.album.type&quot;                   &quot;track.album.uri&quot;                   
+## [37] &quot;track.album.external_urls.spotify&quot;  &quot;track.external_ids.isrc&quot;           
+## [39] &quot;track.external_urls.spotify&quot;        &quot;video_thumbnail.url&quot;</code></pre>
+<p>Now that we have the tracks of the playlist, we have to create a new playlist to save these tracks to. I save them to a playlist in the format of “year_weeknumber_discover weekly”.</p>
+<pre class="r"><code>playlist &lt;- create_playlist(user_id = &quot;dismami7&quot;, name = paste(strftime(Sys.time(), format = &quot;%y&quot;), strftime(Sys.time(), format = &quot;%V&quot;), &quot;discover weekly&quot;, sep = &quot;_&quot;))</code></pre>
+<p>Once the playlist is created, we have to provide the track uris from our discover weekly playlist to it to fill it with these tracks.</p>
+<pre class="r"><code>add_tracks_to_playlist(playlist$id, uris = discover_weekly[[&quot;track.uri&quot;]])</code></pre>
+<pre><code>## $snapshot_id
+## [1] &quot;MixjZjdjNTEzMmNhMWJiNTBhOTY4YjE2ZTE1MzZlYTYxMTMzMDAyNzEz&quot;</code></pre>
+<p>Finally, check if it worked on Spotify or like this:</p>
+<pre class="r"><code>all(get_playlist_tracks(playlist_id = playlist$id)[[&quot;track.uri&quot;]] == get_playlist_tracks(playlist_id = Sys.getenv(&quot;PLAYLIST_ID&quot;))[[&quot;track.uri&quot;]])</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<p>Now we only have to remember to run this script once a week. We could also use packages like <code>taskscheduleR</code> or <code>googleCloudRunner</code> to fully automate the process. Have fun listening to your (old)
+discover weekly playlists!</p>
