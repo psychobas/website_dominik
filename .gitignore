@@ -6,5 +6,7 @@ website_dominik.Rproj
 starter_script.R
 .Renviron
 public
-resources/
+resources
 public/
+.DS_Store
+Thumbs.db
