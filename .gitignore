@@ -6,4 +6,5 @@ website_dominik.Rproj
 starter_script.R
 .Renviron
 public
-resources
+resources/
+public/
