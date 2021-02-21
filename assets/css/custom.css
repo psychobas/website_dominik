@@ -138,3 +138,11 @@ div.note {
 .publish-icon {
   display: inline-block;
 }
+
+
+/*----- get rid of padding */
+#about {
+    padding-bottom: 0;
+}
+
+
