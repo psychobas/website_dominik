@@ -10,12 +10,12 @@ authors:
 superuser: true
 
 # Role/position
-role: PhD Student in Psychology
+role: PhD Student
 
 # Organizations/Affiliations
 organizations:
-- name: University of Basel, Center for Philanthropy Studies
-  url: ""
+- name: University of Basel, Center for Philanthropy Studies & Center for Economic Psychology
+  url: "https://ceps.unibas.ch/de/"
 
 # Short bio (displayed in user profile at end of posts)
 bio: My research interests include distributed robotics, mobile computing and programmable matter.
@@ -47,13 +47,19 @@ education:
 social:
 - icon: envelope
   icon_pack: fas
-  link: '#contact'  # For a direct email link, use "mailto:dominik.meier@unibas.ch".
+  link: #contact  # For a direct email link, use "mailto:dominik.meier@unibas.ch".
 - icon: twitter
   icon_pack: fab
   link: https://twitter.com/Dominikmeie_r
 - icon: github
   icon_pack: fab
   link: https://github.com/psychobas
+- icon: google-scholar
+  icon_pack: ai
+  link: https://scholar.google.com/citations?user=MI508Z0AAAAJ&hl=en&oi=sra
+- icon: cv
+  icon_pack: ai
+  link: https://scholar.google.com/citations?user=MI508Z0AAAAJ&hl=en&oi=sra
 # Link to a PDF of your resume/CV from the About widget.
 # To enable, copy your resume/CV to `static/files/cv.pdf` and uncomment the lines below.
 # - icon: cv
@@ -69,6 +75,11 @@ user_groups:
 - Researchers
 - Visitors
 ---
+
+Hi, thanks for stopping by! My name is Dominik, I love learning new things. This is why next to my degree in Psychology I also persued a degree in Economics. It is also one of the reasons
+I decided to go for a PhD in Economic Psychology at the Center for Philanthropy Studies and the Center for Economic Psychology at the University of Basel. Through my studies I discovered my passion
+for data (science). 
+
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Nunc eget lorem dolor sed viverra ipsum nunc. Ac ut consequat semper viverra. Urna nunc id cursus metus aliquam eleifend mi. Consectetur adipiscing elit ut aliquam purus. Et molestie ac feugiat sed lectus vestibulum mattis ullamcorper. Suspendisse sed nisi lacus sed viverra. Quis blandit turpis cursus in hac habitasse platea dictumst quisque. Habitant morbi tristique senectus et netus et malesuada fames. Convallis a cras semper auctor neque vitae tempus. Quis blandit turpis cursus in hac habitasse. Laoreet sit amet cursus sit amet. Pellentesque dignissim enim sit amet venenatis urna. Posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Eu facilisis sed odio morbi quis commodo odio aenean sed.
 

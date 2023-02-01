@@ -1,0 +1,131 @@
+<p>Let me start this post with an image that shows one of the issues that the <a href="https://github.com/ropensci/targets">targets</a> R package adresses:</p>
+<div class="figure">
+<img src="file_structure.PNG" alt="" />
+<p class="caption">file_structure</p>
+</div>
+<p>This is a script-based workflow, and is still quite common in my experience. As the numbering of the scripts imply, you have to run the scirpts in numerical order to get the results that the creator of the scripts intended. For example like this:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">source</span>(<span class="dv">0</span>_read_raw_data.R)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">source</span>(<span class="dv">1</span>_preprocess_data.R)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="kw">source</span>(<span class="dv">2</span>_exploratory_analyses.R)</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="kw">source</span>(<span class="dv">3</span>_fit_models.R)</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="kw">source</span>(<span class="dv">4</span>_evaluate_models.R)</span></code></pre></div>
+<p>This approach would not be so widely used if it would not work, but there are a few shortcomings that the <code>targets</code> package adresses:</p>
+<ul>
+<li>Although the names of the scripts give us a very vague idea of what they do, we still have to open each script to actually see what happens at each step.</li>
+<li>If we change something, say in <code>1_preprocess_data.R</code>, we have to source all downstream scripts. This is because the numbers indicate dependence, and if we change something upstream, we should make sure these changes are reflected in the downstream analyses. The problem is that again we only get a very vague idea about the dependence structure.</li>
+</ul>
+<p>Let’s explore how <code>targets</code> addresses these issues. When setting up a project with <code>targets</code>, the file structure will look something like this:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>├── _targets.R</span>
+<span id="cb2-2"><a href="#cb2-2"></a>├── R<span class="op">/</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>├──── functions.R</span>
+<span id="cb2-4"><a href="#cb2-4"></a>├── data<span class="op">/</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>└──── my_data.csv</span></code></pre></div>
+<p>There are no numbered scripts! In fact, there are only two scripts, <code>_targets.R</code> and <code>functions.R</code>. Let’s first look at the <code>_targets.R</code> script, since this is a special script that you need to run analyses with the <code>targets</code> package. It’s easy to create a bare-bones version of this script that has everything you need already set up by running <code>tar_script()</code>. Make sure your working directory is the root directory of the project, since this file needs to live in the project’s root directory. <code>tar_script()</code> generates the following file.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">library</span>(targets)</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="co"># This is an example _targets.R file. Every</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co"># {targets} pipeline needs one.</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co"># Use tar_script() to create _targets.R and tar_edit()</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="co"># to open it again for editing.</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="co"># Then, run tar_make() to run the pipeline</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="co"># and tar_read(summary) to view the results.</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="co"># Define custom functions and other global objects.</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="co"># This is where you write source(\&quot;R/functions.R\&quot;)</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="co"># if you keep your functions in external scripts.</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a>summ &lt;-<span class="st"> </span><span class="cf">function</span>(dataset) {</span>
+<span id="cb3-13"><a href="#cb3-13"></a>  <span class="kw">summarize</span>(dataset, <span class="dt">mean_x =</span> <span class="kw">mean</span>(x))</span>
+<span id="cb3-14"><a href="#cb3-14"></a>}</span>
+<span id="cb3-15"><a href="#cb3-15"></a></span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="co"># Set target-specific options such as packages.</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="kw">tar_option_set</span>(<span class="dt">packages =</span> <span class="st">&quot;dplyr&quot;</span>)</span>
+<span id="cb3-18"><a href="#cb3-18"></a></span>
+<span id="cb3-19"><a href="#cb3-19"></a><span class="co"># End this file with a list of target objects.</span></span>
+<span id="cb3-20"><a href="#cb3-20"></a><span class="kw">list</span>(</span>
+<span id="cb3-21"><a href="#cb3-21"></a>  <span class="kw">tar_target</span>(data, <span class="kw">data.frame</span>(<span class="dt">x =</span> <span class="kw">sample.int</span>(<span class="dv">100</span>), <span class="dt">y =</span> <span class="kw">sample.int</span>(<span class="dv">100</span>))),</span>
+<span id="cb3-22"><a href="#cb3-22"></a>  <span class="kw">tar_target</span>(summary, <span class="kw">summ</span>(data)) <span class="co"># Call your custom functions as needed.</span></span>
+<span id="cb3-23"><a href="#cb3-23"></a>)</span></code></pre></div>
+<p>I like to think of the <code>_targets.R</code> script as a conductor. It knows which analysis to run when and also how the different analyses steps depend on each other. How does <code>_targets.R</code> know this? By parsing the list of <code>tar_target()</code> functions that you see at the bottom of the script. This tells <code>_targets.R</code> what should run in which order. The first argument of the <code>tar_target()</code> function is the name of the target, we can sort of think of it as the function’s return value. I say sort of because it is actually the name we give the return value of whatever code we specify in the functions second argument.</p>
+<p>Replacing the comma with the assignment operator makes it clear what <code>tar_target()</code> does (this does not work, it’s just to highlight what the function does). So if you see</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">tar_target</span>(name, <span class="cf">function</span>)</span></code></pre></div>
+<p>think of it as</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">tar_target</span>(name &lt;-<span class="st"> </span><span class="cf">function</span>(...))</span></code></pre></div>
+<p>So in the pseudo code example below, the command (this is the name of the second argument of <code>tar_target()</code>) of the first function in the list is to squeeze oranges. The return value of this would be orange juice and it is appropriate to name it like this, but we could also give it any other name. We could name it coffee for that matter, but this would be confusing. What I’m trying to say is that you should give meaningful names to targets, and the same goes for the second argument, the function name. I always try to give functions names that describe what they do with the input (verb), whereas for the return values I try to pick names that appropriately describe the end result of that function, i.e., the return value. With this, we get a pretty good overview of what happens in our targets pipeline. So in the example below it’s pretty clear that I’m trying to get targets to make a whisky sour. Unfortunately without success so far.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">list</span>(</span>
+<span id="cb6-2"><a href="#cb6-2"></a>  <span class="kw">tar_target</span>(orange juice, squeeze oranges),</span>
+<span id="cb6-3"><a href="#cb6-3"></a>  <span class="kw">tar_target</span>(lemon juice, squeeze lemons),</span>
+<span id="cb6-4"><a href="#cb6-4"></a>  <span class="kw">tar_target</span>(whiskey, pour whiskey),</span>
+<span id="cb6-5"><a href="#cb6-5"></a>  <span class="kw">tar_target</span>(sugar siroup, pour sugar siroup),</span>
+<span id="cb6-6"><a href="#cb6-6"></a>  <span class="kw">tar_target</span>(ice, grab ice),</span>
+<span id="cb6-7"><a href="#cb6-7"></a>  <span class="kw">tar_target</span>(cocktail, <span class="kw">mix</span>(orange juice, lemon juice, whiskey, sugar siroup, ice))</span>
+<span id="cb6-8"><a href="#cb6-8"></a>)</span></code></pre></div>
+<p>Let’s look at a more realistic example. The pipeline below reads in some data, fits a regression model and plots the result. Still in pseudo code:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">list</span>(</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="kw">tar_target</span>(raw data, read data),</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="kw">tar_target</span>(regression model, fit model),</span>
+<span id="cb7-4"><a href="#cb7-4"></a>  <span class="kw">tar_target</span>(plot model fit, plot regression model),</span>
+<span id="cb7-5"><a href="#cb7-5"></a>)</span></code></pre></div>
+<p>Now one of the beautiful things with targets is that we do not have to change much to transform this to real code. We only need to transform the arguements to valid object names, add arguments to the functions, and specify the functions in the <code>functions.R</code> script that lives in the <code>R/</code> folder. Brining the names in a form that won’t make R yell at us gives us this:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">list</span>(</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="kw">tar_target</span>(raw_data, <span class="kw">simulate_data</span>(<span class="dt">n =</span> <span class="dv">100</span>)),</span>
+<span id="cb8-3"><a href="#cb8-3"></a>  <span class="kw">tar_target</span>(regression_model, <span class="kw">fit_model</span>(<span class="dt">data =</span> raw_data)),</span>
+<span id="cb8-4"><a href="#cb8-4"></a>  <span class="kw">tar_target</span>(model_plot fit, plot_regression <span class="kw">mode</span>(regression_model, raw_data)</span>
+<span id="cb8-5"><a href="#cb8-5"></a>)</span></code></pre></div>
+<p>Without even having seen the functions, we have a pretty clear idea of what happens in this pipeline. Notice how the name of a given target is the next target’s function argument (this is often the case, but it doesn’t have to be). Let us now actually define the functions that we call as the second argument in the <code>tar_target</code> function. The first function could look like this:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>simulate_data &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">n =</span> <span class="dv">10</span>) {</span>
+<span id="cb9-2"><a href="#cb9-2"></a>  x &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> n)</span>
+<span id="cb9-3"><a href="#cb9-3"></a>  y &lt;-<span class="st"> </span>x <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> n)</span>
+<span id="cb9-4"><a href="#cb9-4"></a>  dat &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y)</span>
+<span id="cb9-5"><a href="#cb9-5"></a>  <span class="kw">return</span>(dat)</span>
+<span id="cb9-6"><a href="#cb9-6"></a>}</span></code></pre></div>
+<p>The data that is simulated by this function is then assigned to the name <code>raw_data</code> in the targets pipeline. With the same logic for the second and third function, our final <code>functions.R</code> file could look like this:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>simulate_data &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">n =</span> <span class="dv">10</span>) {</span>
+<span id="cb10-2"><a href="#cb10-2"></a>  x &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> n)</span>
+<span id="cb10-3"><a href="#cb10-3"></a>  y &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> n)</span>
+<span id="cb10-4"><a href="#cb10-4"></a>  dat &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y)</span>
+<span id="cb10-5"><a href="#cb10-5"></a>  <span class="kw">return</span>(dat)</span>
+<span id="cb10-6"><a href="#cb10-6"></a>}</span>
+<span id="cb10-7"><a href="#cb10-7"></a></span>
+<span id="cb10-8"><a href="#cb10-8"></a>fit_model &lt;-<span class="st"> </span><span class="cf">function</span>(data) {</span>
+<span id="cb10-9"><a href="#cb10-9"></a>  fit_summary &lt;-<span class="st"> </span><span class="kw">lm</span>(y <span class="op">~</span><span class="st"> </span>x, <span class="dt">data =</span> data)</span>
+<span id="cb10-10"><a href="#cb10-10"></a>}</span>
+<span id="cb10-11"><a href="#cb10-11"></a></span>
+<span id="cb10-12"><a href="#cb10-12"></a>plot_regression_model &lt;-<span class="st"> </span><span class="cf">function</span>(regression_model, raw_data) {</span>
+<span id="cb10-13"><a href="#cb10-13"></a>  raw_data <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="st">    </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y)) <span class="op">+</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a><span class="st">    </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a><span class="st">    </span><span class="kw">geom_abline</span>(<span class="dt">slope =</span> <span class="kw">coef</span>(regression_model)[[<span class="dv">1</span>]], <span class="dt">intercept =</span> <span class="kw">coef</span>(regression_model)[[<span class="dv">2</span>]])</span>
+<span id="cb10-17"><a href="#cb10-17"></a>}</span></code></pre></div>
+<p>We could also add documentation to our functions with Roxygen comments. There are two last thing we have to do to make sure that we can run this analysis by calling <code>tar_make()</code>. We have to tell <code>_targets.R</code> to load the packages that we rely on. This is done with the following function: <code>tar_option_set(packages = c("ggplot2", "magrittr"))</code>. As in the example <code>_targets.R</code> file shown above, I usually put this right before the list with the <code>tar_target</code> functions. And we have to source our functions that live in the <code>functions.R</code> file in the <code>_targets.R</code> script. The final <code>_targets.R</code> file could look like this:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">library</span>(targets)</span>
+<span id="cb11-2"><a href="#cb11-2"></a></span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="kw">source</span>(<span class="st">&quot;R/functions.R&quot;</span>)</span>
+<span id="cb11-4"><a href="#cb11-4"></a></span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="co"># Set target-specific options such as packages.</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a><span class="kw">tar_option_set</span>(<span class="dt">packages =</span> <span class="kw">c</span>(<span class="st">&quot;ggplot2&quot;</span>, <span class="st">&quot;magrittr&quot;</span>))</span>
+<span id="cb11-7"><a href="#cb11-7"></a></span>
+<span id="cb11-8"><a href="#cb11-8"></a><span class="co"># End this file with a list of target objects.</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a><span class="kw">list</span>(</span>
+<span id="cb11-10"><a href="#cb11-10"></a>  <span class="kw">tar_target</span>(raw_data, <span class="kw">simulate_data</span>(<span class="dt">n =</span> <span class="dv">100</span>)),</span>
+<span id="cb11-11"><a href="#cb11-11"></a>  <span class="kw">tar_target</span>(regression_model, <span class="kw">fit_model</span>(<span class="dt">data =</span> raw_data)),</span>
+<span id="cb11-12"><a href="#cb11-12"></a>  <span class="kw">tar_target</span>(model_plot_fit, <span class="kw">plot_regression_model</span>(regression_model, raw_data))</span>
+<span id="cb11-13"><a href="#cb11-13"></a>)</span></code></pre></div>
+<p>Ok, so we saw how <code>targets</code> solves the first shortcoming of the script based approach that I mentioned at the beginning: <code>targets</code> makes it really easy to understand what happens in a workflow without having to open files like <code>2_exploratory_analysis.R</code> etc. I mentioned a second shortcoming of the script based approach in the beginning, namely that it is very hard to keep track on what depends on what. With <code>targets</code>, this is as easy as running <code>tar_visnetwork()</code>:</p>
+<div class="figure">
+<img src="tar_visnetwork.PNG" alt="" />
+<p class="caption">tar_visnetwork</p>
+</div>
+<p>This graph not only tells us how the targets are related/connected, it also tells us whether they are up to date or outdated. There are two awesome things about this. 1) If no target is outdated, you have evidence that the results you already have are reproducible because nothing has changed since the last time you run the code. 2) If you did change something, <code>targets</code> only runs those targets/functions that are affected by these changes. This can save you a lot of time when doing computationally intensive analyses. <code>Targets</code> can skip up to date targets because it saves all <code>tar_target()</code> return values in the <code>_targets/objects/</code> folder. With the <code>tar_read()</code> and/or <code>tar_load()</code> function, you can easily load those targets into your current session. I use these functions all the time when I add new targets to my workflow. I read the return value(s) from all targets that serve as input in the new target I want to add and then interactively develop and test the function of the new target I want to add before actually adding the target and calling <code>tar_make()</code>. This also makes debugging a lot easier, since you can just load the inputs of the targets that failed and interactively step through the function that threw the error.</p>
+<p>Skipping up to date targets can lead to significant long-term time savings. If you are running a computationally intensive analysis it is thus advisable to define targets that allow you to maximize these time savings. There is a <a href="https://books.ropensci.org/targets/practices.html#how-to-define-good-targets">short section on that in the <code>targets</code> user manual</a>, it defines good targets as:</p>
+<blockquote>
+<ol style="list-style-type: decimal">
+<li>Are large enough to subtract a decent amount of runtime when skipped.</li>
+<li>Are small enough that some targets can be skipped even if others need to run.</li>
+<li>Invoke no side effects such as modifications to the global environment. (But targets with <code>tar_target(format = "file")</code> can save files.)</li>
+<li>Return a single value that is
+<ul>
+<li>Easy to understand and introspect.</li>
+<li>Meaningful to the project.</li>
+<li>Easy to save as a file, e.g. with <code>readRDS()</code>.</li>
+</ul></li>
+</ol>
+</blockquote>

@@ -1,0 +1,223 @@
+---
+title: A Short Introduction to the Targets r Package
+author: Dominik Meier
+date: '2021-02-22'
+slug: []
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-02-22T19:55:17+01:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: yes
+projects: []
+---
+
+Let me start this post with an image that shows one of the issues that the [targets](https://github.com/ropensci/targets) R package adresses:
+
+![file_structure](file_structure.PNG)
+
+This is a script-based workflow, and is still quite common in my experience. As the numbering of the scripts imply, you have to run the scirpts in numerical order to get the results that the creator of the scripts intended. For example like this:
+
+```{r, eval=FALSE}
+source(0_read_raw_data.R)
+source(1_preprocess_data.R)
+source(2_exploratory_analyses.R)
+source(3_fit_models.R)
+source(4_evaluate_models.R)
+```
+
+This approach would not be so widely used if it would not work, but there are a few shortcomings that the `targets` package adresses:
+
+- Although the names of the scripts give us a very vague idea of what they do, we still have to open each script to actually see what happens at each step.
+- If we change something, say in `1_preprocess_data.R`, we have to source all downstream scripts. This is because the numbers indicate dependence, and if we change something upstream, we should make sure these changes are reflected in the downstream analyses. The problem is that again we only get a very vague idea about the dependence structure. 
+
+Let's explore how `targets` addresses these issues. When setting up a project with `targets`, the file structure will look something like this: 
+
+```{r, eval=FALSE}
+├── _targets.R
+├── R/
+├──── functions.R
+├── data/
+└──── my_data.csv
+```
+
+There are no numbered scripts! In fact, there are only two scripts, `_targets.R` and `functions.R`. Let's first look at the `_targets.R` script, since this is a special script that you need to run analyses with the `targets` package. It's easy to create a bare-bones version of this script that has everything you need already set up by running `tar_script()`. Make sure your working directory is the root directory of the project, since this file needs to live in the project's root directory. `tar_script()` generates the following file. 
+
+```{r, eval=FALSE}
+library(targets)
+# This is an example _targets.R file. Every
+# {targets} pipeline needs one.
+# Use tar_script() to create _targets.R and tar_edit()
+# to open it again for editing.
+# Then, run tar_make() to run the pipeline
+# and tar_read(summary) to view the results.
+
+# Define custom functions and other global objects.
+# This is where you write source(\"R/functions.R\")
+# if you keep your functions in external scripts.
+summ <- function(dataset) {
+  summarize(dataset, mean_x = mean(x))
+}
+
+# Set target-specific options such as packages.
+tar_option_set(packages = "dplyr")
+
+# End this file with a list of target objects.
+list(
+  tar_target(data, data.frame(x = sample.int(100), y = sample.int(100))),
+  tar_target(summary, summ(data)) # Call your custom functions as needed.
+)
+
+```
+
+I like to think of the `_targets.R` script as a conductor. It knows which analysis to run when and also how the different analyses steps depend on each other. How does `_targets.R` know this? By parsing the list of `tar_target()` functions that you see at the bottom of the script. This tells `_targets.R` what should run in which order. The first argument of the `tar_target()` function is the name of the target, we can sort of think of it as the function's return value. I say sort of because it is actually the name we give the return value of whatever code we specify in the functions second argument. 
+
+Replacing the comma with the assignment operator makes it clear what `tar_target()` does (this does not work, it's just to highlight what the function does). 
+
+So if you see
+```{r, eval=FALSE}
+tar_target(name, function(...))
+```
+
+think of it as
+```{r, eval=FALSE}
+tar_target(name <- function(...))
+```
+
+
+So in the pseudo code example below, the command (this is the name of the second argument of `tar_target()`) of the first function in the list is to squeeze oranges. The return value of this would be orange juice and it is appropriate to name it like this, but we could also give it any other name. We could name it coffee for that matter, but this would be confusing. What I'm trying to say is that you should give meaningful names to targets, and the same goes for the second argument, the function name. I always try to give functions names that describe what they do with the input (verb), whereas for the return values I try to pick names that appropriately describe the end result of that function, i.e., the return value. With this, we get a pretty good overview of what happens in our targets pipeline. So in the example below it's pretty clear that I'm trying to get targets to make a whisky sour. Unfortunately without success so far. 
+
+```{r, eval=FALSE}
+list(
+  tar_target(orange juice, squeeze oranges),
+  tar_target(lemon juice, squeeze lemons),
+  tar_target(whiskey, pour whiskey),
+  tar_target(sugar siroup, pour sugar siroup),
+  tar_target(ice, grab ice),
+  tar_target(cocktail, mix(orange juice, lemon juice, whiskey, sugar siroup, ice))
+)
+```
+
+Let's look at a more realistic example. The pipeline below reads in some data, fits a regression model and plots the result. Still in pseudo code:
+```{r, eval=FALSE}
+list(
+  tar_target(raw data, read data),
+  tar_target(regression model, fit model),
+  tar_target(plot model fit, plot regression model),
+)
+```
+
+Now one of the beautiful things with targets is that we do not have to change much to transform this to working code. We only need to transform the arguements to valid object names, add arguments to the functions, and specify the functions in the `functions.R` script that lives in the `R/` folder. Brining the names in a form that won't make R yell at us gives us this:
+```{r, eval = FALSE}
+list(
+  tar_target(raw_data, simulate_data(n = 100)),
+  tar_target(regression_model, fit_model(data = raw_data)),
+  tar_target(model_plot fit, plot_regression mode(regression_model, raw_data)
+)
+```
+
+Without even having seen the functions, we have a pretty clear idea of what happens in this pipeline. Notice how the name of a given target is the next target's function argument (this is often the case, but it doesn't have to be). 
+Let us now actually define the functions that we call as the second argument in the `tar_target` function. The first function could look like this:
+```{r}
+simulate_data <- function(n = 10) {
+  x <- rnorm(n = n)
+  y <- x + rnorm(n = n)
+  dat <- data.frame(x = x, y = y)
+  return(dat)
+}
+```
+
+The data that is simulated by this function is then assigned to the name `raw_data` in  the targets pipeline. With the same logic for the second and third function, our final `functions.R` file could look like this:
+
+```{r}
+simulate_data <- function(n = 10) {
+  x <- rnorm(n = n)
+  y <- rnorm(n = n)
+  dat <- data.frame(x = x, y = y)
+  return(dat)
+}
+
+fit_model <- function(data) {
+  fit_summary <- lm(y ~ x, data = data)
+}
+
+plot_regression_model <- function(regression_model, raw_data) {
+  raw_data %>% 
+    ggplot(aes(x = x, y = y)) +
+    geom_point() +
+    geom_abline(slope = coef(regression_model)[[1]], intercept = coef(regression_model)[[2]])
+}
+```
+
+We could also add documentation to our functions with Roxygen comments. There are two last thing we have to do to make sure that we can run this analysis by calling `tar_make()`. We have to tell `_targets.R` to load the packages that we rely on. This is done with the following function: `tar_option_set(packages = c("ggplot2", "magrittr"))`. As in the example `_targets.R` file shown above, I usually put this right before the list with the `tar_target` functions. And we have to source our functions that live in the `functions.R` file in the `_targets.R` script. The final `_targets.R` file could look like this:
+```{r, eval=FALSE}
+library(targets)
+
+source("R/functions.R")
+
+# Set target-specific options such as packages.
+tar_option_set(packages = c("ggplot2", "magrittr"))
+
+# End this file with a list of target objects.
+list(
+  tar_target(raw_data, simulate_data(n = 100)),
+  tar_target(regression_model, fit_model(data = raw_data)),
+  tar_target(model_fit_plot, plot_regression_model(regression_model, raw_data))
+)
+
+```
+
+When we now call `tar_make()`, we see the following output in the console:
+```{r, eval=FALSE}
+* run target raw_data
+* run target regression_model
+* run target model_plot_fit
+* end pipeline
+```
+
+Nice, but where is our plot of the model fit? We have to load it into the current environment with `tar_load()` or read it and assign it to an object with `tar_read()`. So if we call  `tar_read(model_fit_plot)` we see our plot:
+![model_fit_plot](model_fit_plot.png)
+
+
+Ok, so we saw how `targets` solves the first shortcoming of the script based approach that I mentioned at the beginning: `targets` makes it really easy to understand what happens in a workflow without having to open files like `2_exploratory_analysis.R` etc. I mentioned a second shortcoming of the script based approach in the beginning, namely that it is very hard to keep track on what depends on what. With `targets`, this is as easy as running `tar_visnetwork()`:
+
+![tar_visnetwork](tar_visnetwork.PNG)
+
+This graph not only tells us how the targets are related/connected, it also tells us whether they are up to date or outdated. There are two awesome things about this. 1) If no target is outdated, you have evidence that the results you already have are reproducible because nothing has changed since the last time you run the code. So if we run `tar_make()` again without having made any changes to the code in the exmample above, we get the following output: 
+```{r, eval=FALSE}
+v skip target raw_data
+v skip target regression_model
+v skip target model_fit_plot
+v skip pipeline
+```
+
+We see that all targets are skipped, which leads us to the second awesome thing: if you did change something, `targets` only runs those targets/functions that are affected by these changes. This can save you a lot of time when doing computationally intensive analyses. So if we change something in the layout of the plot, `targets` only updates this target when we run `tar_make()` because all other targets were up to date and do not depend on the `model_fit_plot` target:
+```{r,eval=FALSE}
+v skip target raw_data
+v skip target regression_model
+* run target model_fit_plot
+* end pipeline
+```
+
+`Targets` can skip up to date targets because it saves all `tar_target()` return values in the `_targets/objects/` folder. With the `tar_read()` and/or `tar_load()` function, you can easily load those targets into your current session (just how I did with the plot above). I use these functions all the time when I add new targets to my workflow. I read the return value(s) from all targets that serve as input in the new target I want to add and then interactively develop and test the function of the new target I want to add before actually adding the target and calling `tar_make()`. This also makes debugging a lot easier, since you can just load the inputs of the targets that failed and interactively step through the function that threw the error. The return values saved in `_targets/objects/` persist between session, which means that you can just jump back in where you were at the last session by loading the relevant targets. 
+
+Skipping up to date targets can lead to significant long-term time savings. If you are running a computationally intensive analysis it is thus advisable to define targets that allow you to maximize these time savings. There is a [short section on that in the `targets` user manual](https://books.ropensci.org/targets/practices.html#how-to-define-good-targets), it defines good targets as:
+
+
+
+>1. Are large enough to subtract a decent amount of runtime when skipped.
+>1. Are small enough that some targets can be skipped even if others need to run.
+>1. Invoke no side effects such as modifications to the global environment. (But targets with `tar_target(format = "file")` can save files.)
+>1. Return a single value that is 
+>    * Easy to understand and introspect.
+>    * Meaningful to the project.
+>    * Easy to save as a file, e.g. with `readRDS()`.
+
+And with this link to the [`targets` user manual](https://books.ropensci.org/targets/) I end this short introduction. If you want to incorporate `targets` into your workflow and profit from the benefits it provides, the user manual brings you up to speed. 
+ 
+
