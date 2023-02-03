@@ -22,6 +22,9 @@ bio: My research interests include distributed robotics, mobile computing and pr
 
 interests:
 - Social Preferences
+- Philanthropy
+- Nonprofit Organizations
+- Natural Language Processing
 - Data4Good
 - Data Science
 
@@ -76,10 +79,6 @@ user_groups:
 - Visitors
 ---
 
-Hi, thanks for stopping by! My name is Dominik, I love learning new things. This is why next to my degree in Psychology I also persued a degree in Economics. It is also one of the reasons
-I decided to go for a PhD in Economic Psychology at the Center for Philanthropy Studies and the Center for Economic Psychology at the University of Basel. Through my studies I discovered my passion
-for data (science). 
+I'm currently a PhD student at the Center for Philanthropy Studies (CEPS) and the Center for Economic Psychology at the University of Basel. I study social preferences and nonprofit organizations and I am passionate about Natural Language Processing and Data Science. 
 
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Nunc eget lorem dolor sed viverra ipsum nunc. Ac ut consequat semper viverra. Urna nunc id cursus metus aliquam eleifend mi. Consectetur adipiscing elit ut aliquam purus. Et molestie ac feugiat sed lectus vestibulum mattis ullamcorper. Suspendisse sed nisi lacus sed viverra. Quis blandit turpis cursus in hac habitasse platea dictumst quisque. Habitant morbi tristique senectus et netus et malesuada fames. Convallis a cras semper auctor neque vitae tempus. Quis blandit turpis cursus in hac habitasse. Laoreet sit amet cursus sit amet. Pellentesque dignissim enim sit amet venenatis urna. Posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Eu facilisis sed odio morbi quis commodo odio aenean sed.
 
