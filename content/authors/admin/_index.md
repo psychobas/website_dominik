@@ -10,38 +10,18 @@ authors:
 superuser: true
 
 # Role/position
-role: PhD Student
+role: Postdoctoral Researcher
 
 # Organizations/Affiliations
 organizations:
-- name: University of Basel, Center for Philanthropy Studies & Center for Economic Psychology
+- name: University of Basel, Center for Philanthropy Studies
   url: "https://ceps.unibas.ch/de/"
 
 # Short bio (displayed in user profile at end of posts)
-bio: My research interests include distributed robotics, mobile computing and programmable matter.
+bio: Ppostdoctoral researcher at the Center for Philanthropy Studies (CEPS) at the University of Basel.
 
-interests:
-- Social Preferences
-- Philanthropy
-- Nonprofit Organizations
-- Natural Language Processing
-- Data4Good
-- Data Science
 
-education:
-  courses:
-  - course: PhD in Psychology
-    institution: University of Basel
-    year: 2019 - present
-  - course: MSc in Psychology
-    institution: University of Basel
-    year: 2019
-  - course: BA in Economics
-    institution: University of Basel
-    year: 2018
-  - course: BSc in Psychology
-    institution: University of Basel
-    year: 2017
+
 
 # Social/Academic Networking
 # For available icons, see: https://sourcethemes.com/academic/docs/page-builder/#icons
@@ -55,7 +35,7 @@ social:
   icon_pack: fab
   link: https://twitter.com/Dominikmeie_r
 - icon: github
-  icon_pack: fab
+  icon_pack: fab 
   link: https://github.com/psychobas
 - icon: google-scholar
   icon_pack: ai
@@ -79,6 +59,10 @@ user_groups:
 - Visitors
 ---
 
-I'm currently a PhD student at the Center for Philanthropy Studies (CEPS) and the Center for Economic Psychology at the University of Basel. I study social preferences and nonprofit organizations and I am passionate about Natural Language Processing and Data Science. 
+I’m currently a postdoctoral researcher at the Center for Philanthropy Studies (CEPS) at the University of Basel. My research evolves around Philanthropy and I am passionate about Natural Language Processing and Machine Learning. 
+
+My PhD was about social preferences and I am currently continuing on testing social preference theories using data from the crowdfunding platform GoFundMe. I am also interested in the Sustainable Development Goals (SDGs) and how philantropic institutions can contribute to the goals. In a third line of research, I use mission statements of Swiss third- and private sector organizations to study how similar the two sectors are and how this evolved over the last 20 years. 
+
+
 
 

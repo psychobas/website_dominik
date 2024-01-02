@@ -30,7 +30,6 @@ tags:
 featured: true
 
 links:
-- name: Custom Link
 url_pdf: https://arxiv.org/pdf/2110.05856.pdf
 url_code: ''
 url_dataset: ''
@@ -53,7 +52,6 @@ image:
 #   E.g. `internal-project` references `content/project/internal-project/index.md`.
 #   Otherwise, set `projects: []`.
 projects:
-- internal-project
 
 ---
 
